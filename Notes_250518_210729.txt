@@ -1,0 +1,88 @@
+class State:
+    def __init__(self, monkey_room, banana_room, box_room, has_box):
+        self.monkey_room = monkey_room
+        self.banana_room = banana_room
+        self.box_room = box_room
+        self.has_box = has_box
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__
+
+    def __str__(self):
+        return f"میمون در اتاق {self.monkey_room} | موز در اتاق {self.banana_room} | جعبه در اتاق {self.box_room} | جعبه همراه میمون: {'بله' if self.has_box else 'خیر'}"
+
+def move_monkey(current_state, target_room):
+    if current_state.monkey_room == target_room:
+        return None  # حرکت ناممکن
+    new_state = State(target_room, current_state.banana_room, current_state.box_room, current_state.has_box)
+    return new_state
+
+def move_box(current_state, target_room):
+    if current_state.monkey_room != current_state.box_room or current_state.has_box:
+        return None  # حرکت ناممکن
+    new_state = State(current_state.monkey_room, current_state.banana_room, target_room, False)
+    return new_state
+
+def climb_box(current_state):
+    if current_state.monkey_room == current_state.box_room and not current_state.has_box:
+        new_state = State(current_state.monkey_room, current_state.banana_room, current_state.box_room, True)
+        return new_state
+    return None  # برداشتن جعبه ناممکن
+
+def reach_banana(current_state):
+    return current_state.has_box and current_state.monkey_room == current_state.banana_room
+
+# تست کد با بررسی خطاها
+initial_state = State(1, 3, 2, False)
+print("وضعیت اولیه:")
+print(initial_state)
+
+# حرکت میمون به اتاق ۲
+state = move_monkey(initial_state, 2)
+if state is None:
+    print("\n❗ حرکت میمون ممکن نیست!")
+else:
+    print("\nبعد از حرکت میمون به اتاق ۲:")
+    print(state)
+
+# حرکت جعبه به اتاق ۳ (اگر state None نباشد)
+if state is not None:
+    new_state = move_box(state, 3)
+    if new_state is None:
+        print("\n❗ حرکت جعبه ممکن نیست!")
+    else:
+        state = new_state
+        print("\nبعد از حرکت جعبه به اتاق ۳:")
+        print(state)
+else:
+    print("\n❗ حرکت جعبه ممکن نیست!")
+
+# برداشتن جعبه (اگر state None نباشد)
+if state is not None:
+    new_state = climb_box(state)
+    if new_state is None:
+        print("\n❗ برداشتن جعبه ممکن نیست!")
+    else:
+        state = new_state
+        print("\nبعد از برداشتن جعبه:")
+        print(state)
+else:
+    print("\n❗ برداشتن جعبه ممکن نیست!")
+
+# حرکت به اتاق ۳ (اگر state None نباشد)
+if state is not None:
+    new_state = move_monkey(state, 3)
+    if new_state is None:
+        print("\n❗ حرکت به اتاق ۳ ممکن نیست!")
+    else:
+        state = new_state
+        print("\nبعد از حرکت به اتاق ۳:")
+        print(state)
+else:
+    print("\n❗ حرکت به اتاق ۳ ممکن نیست!")
+
+# بررسی نهایی
+if state is not None and reach_banana(state):
+    print("\n🎉 میمون موز را گرفت!")
+else:
+    print("\n❌ میمون نتوانست موز را بگیرد!")
